@@ -571,6 +571,45 @@ describe("screen snapshots", () => {
     fireEvent.click(screen.getByText("Codex session").closest("tr")!);
     expect(screen.getByTestId("location")).toHaveTextContent("/sessions");
   });
+  it("Sessions shows the full, untruncated folder path under each session", async () => {
+    const longCwd = "/Users/dev/projects/clients/hunter-trim-cabinets/htc-ops-platform";
+    vi.mocked(api.sessions.list).mockResolvedValueOnce({
+      sessions: [
+        {
+          id: "5d27a6ad-bcaa-4392-be07-1b60fb33d8a5",
+          name: "Folder path session",
+          status: "completed" as const,
+          cwd: longCwd,
+          model: "claude-opus-5",
+          started_at: "2026-06-10T12:00:00.000Z",
+          ended_at: "2026-06-10T12:30:00.000Z",
+          metadata: null,
+          provider: "claude" as const,
+          source: "local",
+          agent_count: 1,
+          last_activity: "2026-06-10T12:30:00.000Z",
+          cost: 0,
+        },
+      ],
+      total: 1,
+      limit: 10,
+      offset: 0,
+    });
+
+    render(
+      <MemoryRouter initialEntries={["/sessions"]}>
+        <Sessions />
+      </MemoryRouter>
+    );
+    await settle();
+
+    // The whole path, as one text node — not the old 30-character truncation.
+    expect(screen.getByText(longCwd)).toBeVisible();
+    expect(screen.queryByText(/\.\.\.$|…$/)).toBeNull();
+    // It lives in the session cell, so the separate Directory column is gone.
+    expect(screen.queryByRole("columnheader", { name: /directory/i })).toBeNull();
+    expect(screen.getByText(longCwd).closest("td")).toHaveTextContent("Folder path session");
+  });
   it("Session detail", async () => {
     await snapshot(
       <Routes>

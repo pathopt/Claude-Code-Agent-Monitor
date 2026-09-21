@@ -2,7 +2,7 @@
   "name": "claude-code-agent-monitor",
   "displayName": "Claude Code Agent Monitor",
   "description": "Professional integrated dashboard for monitoring Claude Code AI agent activity, token usage, and costs directly in VS Code.",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "publisher": "hoangsonw",
   "engines": {
     "vscode": "^1.75.0"

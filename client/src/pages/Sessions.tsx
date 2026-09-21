@@ -90,7 +90,7 @@ import { Select } from "../components/Select";
 import { useUrlTab } from "../hooks/usePageShortcuts";
 import { usePaletteAction } from "../components/PaletteActionProvider";
 import { PaletteHint } from "../components/PaletteHint";
-import { formatDateTime, formatDuration, truncate, fmtCost } from "../lib/format";
+import { formatDateTime, formatDuration, fmtCost } from "../lib/format";
 import {
   effectiveSessionStatus,
   isSessionAwaitingInput,
@@ -509,9 +509,6 @@ export function Sessions() {
                   <th className="px-5 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
                     {t("tableCost")}
                   </th>
-                  <th className="px-5 py-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
-                    {t("tableDirectory")}
-                  </th>
                   <th className="w-10"></th>
                 </tr>
               </thead>
@@ -520,8 +517,8 @@ export function Sessions() {
                   ? Array.from({ length: 8 }).map((_, i) => (
                       <TableRowSkeleton
                         key={`sk-${i}`}
-                        columns={8}
-                        widths={["w-40", "w-20", "w-28", "w-20", "w-10", "w-16", "w-44", "w-4"]}
+                        columns={7}
+                        widths={["w-40", "w-20", "w-28", "w-20", "w-10", "w-16", "w-4"]}
                       />
                     ))
                   : null}
@@ -573,6 +570,15 @@ export function Sessions() {
                           )}
                         </div>
                       </div>
+                      {/* Full folder path, never truncated: it's how you tell
+                          sessions apart across projects. Wraps only when the
+                          table is too narrow to fit it on one line. */}
+                      {session.cwd && (
+                        <p className="mt-1.5 flex items-start gap-1.5 text-[11px] text-gray-400 font-mono [overflow-wrap:anywhere]">
+                          <FolderOpen className="w-3 h-3 mt-0.5 flex-shrink-0 text-gray-500" />
+                          <span>{session.cwd}</span>
+                        </p>
+                      )}
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-2">
@@ -599,12 +605,6 @@ export function Sessions() {
                     </td>
                     <td className="px-5 py-4 text-sm text-gray-400 font-mono">
                       {session.cost != null && session.cost > 0 ? fmtCost(session.cost) : "-"}
-                    </td>
-                    <td
-                      className="px-5 py-4 text-[11px] text-gray-500 font-mono"
-                      title={session.cwd || undefined}
-                    >
-                      {session.cwd ? truncate(session.cwd, 30) : "-"}
                     </td>
                     <td className="px-3 py-4">
                       {!isTransientProcessSession(session) && (

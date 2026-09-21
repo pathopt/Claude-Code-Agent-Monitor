@@ -13,9 +13,24 @@
 
 const vscode = require("vscode");
 const http = require("http");
+const os = require("os");
 const { openSessionInClaudeCode } = require("./open-claude-session");
 
 const POLL_INTERVAL_MS = 5000;
+
+/**
+ * Shorten a session folder for the narrow sidebar without hiding which
+ * project it is: only the home-directory prefix collapses to "~", so
+ * /Users/me/projects/app reads ~/projects/app. Paths outside home stay whole.
+ */
+function shortenCwd(cwd) {
+  if (!cwd) return null;
+  const home = os.homedir();
+  if (home && (cwd === home || cwd.startsWith(home + "/") || cwd.startsWith(home + "\\"))) {
+    return "~" + cwd.slice(home.length);
+  }
+  return cwd;
+}
 const SPARK_HISTORY = 20;
 
 class DashboardWebviewProvider {
@@ -157,6 +172,7 @@ class DashboardWebviewProvider {
         // Needed to decide whether the session can be opened in THIS window
         // and, failing that, which folder to offer opening.
         cwd: s.cwd || null,
+        cwdLabel: shortenCwd(s.cwd),
         // Only local Claude sessions can be opened in Claude Code: Codex
         // sessions aren't Claude conversations, and remote-source sessions
         // live on another machine's disk.
@@ -469,6 +485,12 @@ class DashboardWebviewProvider {
   .session .meta { min-width: 0; flex: 1; }
   .session .name { font-size: 11.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .session .sub { color: var(--muted); font-size: 10px; display: flex; gap: 6px; align-items: center; }
+  .session .path {
+    margin-top: 2px; font-size: 10px; line-height: 1.35;
+    color: var(--fg); opacity: .72;
+    font-family: var(--vscode-editor-font-family, ui-monospace, monospace);
+    overflow-wrap: anywhere;
+  }
   .session .badge {
     background: var(--hover); padding: 1px 6px; border-radius: 999px; font-size: 9.5px;
   }
@@ -652,6 +674,7 @@ try {
               <div class="meta">
                 <div class="name">\${esc(x.name)}</div>
                 <div class="sub"><span>\${esc(ago(x.started_at))}</span><span class="badge">\${esc(x.model)}</span></div>
+                \${x.cwdLabel ? \`<div class="path" title="\${esc(x.cwd)}">\${esc(x.cwdLabel)}</div>\` : ''}
               </div>
               \${x.openable ? \`<button class="open-claude" data-open-claude="\${esc(x.id)}" data-cwd="\${esc(x.cwd || '')}"
                       title="Open this session in Claude Code">\${ICONS.claude}</button>\` : ''}
