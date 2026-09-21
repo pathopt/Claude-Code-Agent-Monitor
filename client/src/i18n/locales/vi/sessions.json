@@ -84,5 +84,8 @@
     "transcript": {
       "loadOlder": "↑ Tải các tin nhắn cũ hơn"
     }
-  }
+  },
+  "openInVSCode": "Mở trong VS Code",
+  "openInVSCodeShort": "VS Code",
+  "openInVSCodeTitle": "Mở phiên này trong Claude Code trên VS Code"
 }

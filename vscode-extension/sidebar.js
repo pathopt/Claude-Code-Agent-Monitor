@@ -13,6 +13,7 @@
 
 const vscode = require("vscode");
 const http = require("http");
+const { openSessionInClaudeCode } = require("./open-claude-session");
 
 const POLL_INTERVAL_MS = 5000;
 const SPARK_HISTORY = 20;
@@ -84,6 +85,9 @@ class DashboardWebviewProvider {
       case "openDashboard":
         vscode.commands.executeCommand("claude-code-agent-monitor.openDashboard", msg.target || "");
         break;
+      case "openClaudeSession":
+        openSessionInClaudeCode({ id: msg.id, cwd: msg.cwd, name: msg.name }, (m) => this.log(m));
+        break;
       case "openInBrowser":
         vscode.commands.executeCommand("claude-code-agent-monitor.openInBrowser");
         break;
@@ -150,11 +154,21 @@ class DashboardWebviewProvider {
         status: s.status || "unknown",
         model: s.model || "unknown",
         started_at: s.started_at,
+        // Needed to decide whether the session can be opened in THIS window
+        // and, failing that, which folder to offer opening.
+        cwd: s.cwd || null,
+        // Only local Claude sessions can be opened in Claude Code: Codex
+        // sessions aren't Claude conversations, and remote-source sessions
+        // live on another machine's disk.
+        openable: s.provider !== "codex" && (!s.source || s.source === "local") && !!s.cwd,
       })),
       history: this.history,
       ts: Date.now(),
     };
 
+    this.log(
+      `pushSnapshot: ${snapshot.sessions.length} session row(s) ` + `[open-in-claude build]`
+    );
     this.view.webview.postMessage({ type: "snapshot", payload: snapshot });
   }
 
@@ -458,6 +472,17 @@ class DashboardWebviewProvider {
   .session .badge {
     background: var(--hover); padding: 1px 6px; border-radius: 999px; font-size: 9.5px;
   }
+  .session .open-claude {
+    all: unset; cursor: pointer; flex-shrink: 0;
+    display: grid; place-items: center; width: 24px; height: 24px;
+    border-radius: 6px; color: var(--muted);
+    background: var(--hover); border: 1px solid var(--border);
+    transition: background .12s ease, color .12s ease, border-color .12s ease;
+  }
+  .session .open-claude:hover, .session .open-claude:focus-visible {
+    color: var(--accent); border-color: var(--accent);
+  }
+  .session .open-claude svg { width: 13px; height: 13px; }
 
   /* ===== Buttons / nav ===== */
   .nav { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
@@ -572,6 +597,7 @@ try {
     tokens:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/><path d="M8 12h8M12 8v8"/></svg>',
     cost:      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>',
     play:      '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',
+    claude:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="M10 14L21 3"/></svg>',
     check:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>',
     error:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>',
     pulse:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9-6-18-3 9H2"/></svg>',
@@ -627,6 +653,8 @@ try {
                 <div class="name">\${esc(x.name)}</div>
                 <div class="sub"><span>\${esc(ago(x.started_at))}</span><span class="badge">\${esc(x.model)}</span></div>
               </div>
+              \${x.openable ? \`<button class="open-claude" data-open-claude="\${esc(x.id)}" data-cwd="\${esc(x.cwd || '')}"
+                      title="Open this session in Claude Code">\${ICONS.claude}</button>\` : ''}
             </div>\`;
         }).join('')
       : '<div class="empty">No recent sessions yet.</div>';
@@ -704,6 +732,15 @@ try {
     }));
     document.querySelectorAll('.session').forEach(el => el.addEventListener('click', () => {
       vscode.postMessage({ command: 'openDashboard', target: el.getAttribute('data-id') });
+    }));
+    document.querySelectorAll('[data-open-claude]').forEach(b => b.addEventListener('click', (ev) => {
+      // Sits inside a .session row that opens the dashboard on click.
+      ev.stopPropagation();
+      vscode.postMessage({
+        command: 'openClaudeSession',
+        id: b.getAttribute('data-open-claude'),
+        cwd: b.getAttribute('data-cwd') || null
+      });
     }));
   };
 

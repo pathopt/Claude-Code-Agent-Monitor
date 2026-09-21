@@ -84,5 +84,8 @@
     "transcript": {
       "loadOlder": "↑ 加载更早的消息"
     }
-  }
+  },
+  "openInVSCode": "在 VS Code 中打开",
+  "openInVSCodeShort": "VS Code",
+  "openInVSCodeTitle": "在 VS Code 的 Claude Code 中打开此会话"
 }

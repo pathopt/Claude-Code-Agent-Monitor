@@ -6177,35 +6177,69 @@ exports[`screen snapshots > Session detail 1`] = `
           </button>
         </div>
       </div>
-      <button
-        class="btn-ghost"
+      <div
+        class="flex items-center gap-2"
       >
-        <svg
-          class="lucide lucide-refresh-cw w-4 h-4"
-          fill="none"
-          height="24"
-          stroke="currentColor"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          viewBox="0 0 24 24"
-          width="24"
-          xmlns="http://www.w3.org/2000/svg"
+        <a
+          aria-label="Open this session in Claude Code inside VS Code"
+          class="btn-ghost"
+          href="vscode://hoangsonw.claude-code-agent-monitor/open-session?id=sess-1"
+          title="Open this session in Claude Code inside VS Code"
         >
-          <path
-            d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"
-          />
-          <path
-            d="M21 3v5h-5"
-          />
-          <path
-            d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"
-          />
-          <path
-            d="M8 16H3v5"
-          />
-        </svg>
-      </button>
+          <svg
+            class="lucide lucide-square-arrow-out-up-right w-4 h-4"
+            fill="none"
+            height="24"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6"
+            />
+            <path
+              d="m21 3-9 9"
+            />
+            <path
+              d="M15 3h6v6"
+            />
+          </svg>
+          Open in VS Code
+        </a>
+        <button
+          class="btn-ghost"
+        >
+          <svg
+            class="lucide lucide-refresh-cw w-4 h-4"
+            fill="none"
+            height="24"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"
+            />
+            <path
+              d="M21 3v5h-5"
+            />
+            <path
+              d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"
+            />
+            <path
+              d="M8 16H3v5"
+            />
+          </svg>
+        </button>
+      </div>
     </div>
     <div
       class="flex items-center gap-1 border-b border-border"

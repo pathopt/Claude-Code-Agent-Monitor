@@ -18,6 +18,13 @@
       "name": "Debug Client (Vite)",
       "url": "http://localhost:5173",
       "webRoot": "${workspaceFolder}/client/src"
+    },
+    {
+      "type": "extensionHost",
+      "request": "launch",
+      "name": "Run Extension (Agent Monitor)",
+      "args": ["--extensionDevelopmentPath=${workspaceFolder}/vscode-extension"],
+      "outFiles": ["${workspaceFolder}/vscode-extension/*.js"]
     }
   ],
   "compounds": [

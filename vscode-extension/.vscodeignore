@@ -1,0 +1,4 @@
+# Keep packaged builds out of new packages, and dev-only files out of the VSIX.
+*.vsix
+node_modules/**
+package-lock.json

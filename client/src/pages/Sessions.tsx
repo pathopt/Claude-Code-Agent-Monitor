@@ -78,6 +78,7 @@ import {
 import { api } from "../lib/api";
 import type { RemoteSource } from "../lib/api";
 import { eventBus } from "../lib/eventBus";
+import { OpenInVSCodeButton } from "../components/OpenInVSCodeButton";
 import { isRemoteDataRefreshMessage } from "../lib/remoteDataEvents";
 import { useDataScope } from "../lib/dataScope";
 import { SessionStatusBadge } from "../components/StatusBadge";
@@ -566,6 +567,9 @@ export function Sessions() {
                               <Play className="w-2.5 h-2.5" />
                               {t("common:dashboardRun", "Run")}
                             </Link>
+                          )}
+                          {!isTransientProcessSession(session) && (
+                            <OpenInVSCodeButton session={session} />
                           )}
                         </div>
                       </div>

@@ -84,5 +84,8 @@
     "transcript": {
       "loadOlder": "↑ 이전 메시지 불러오기"
     }
-  }
+  },
+  "openInVSCode": "VS Code에서 열기",
+  "openInVSCodeShort": "VS Code",
+  "openInVSCodeTitle": "VS Code의 Claude Code에서 이 세션 열기"
 }

@@ -100,6 +100,7 @@ import { TodoProgressPanel } from "../components/TodoProgressPanel";
 import { ConversationView } from "../components/conversation/ConversationView";
 import { SessionStatusBadge, AgentStatusBadge, REASON_ICONS } from "../components/StatusBadge";
 import { CopyButton } from "../components/event-views/primitives";
+import { OpenInVSCodeButton } from "../components/OpenInVSCodeButton";
 import {
   effectiveSessionStatus,
   isSessionAwaitingInput,
@@ -705,9 +706,12 @@ export function SessionDetail() {
             </div>
           )}
         </div>
-        <button onClick={load} className="btn-ghost">
-          <RefreshCw className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-2">
+          <OpenInVSCodeButton session={session} variant="button" />
+          <button onClick={load} className="btn-ghost">
+            <RefreshCw className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* Waiting-for-input callout: WHY the session sits in the yellow Waiting

@@ -10,6 +10,12 @@
 const vscode = require("vscode");
 const http = require("http");
 const { DashboardWebviewProvider } = require("./sidebar");
+const {
+  configure: configureSessionOpener,
+  openSessionInClaudeCode,
+  openSessionById,
+  claimHandoff,
+} = require("./open-claude-session");
 
 let statusBarItem;
 let outputChannel;
@@ -18,6 +24,36 @@ function activate(context) {
   outputChannel = vscode.window.createOutputChannel("Claude Code Monitor");
   outputChannel.appendLine("[activate] " + new Date().toISOString());
   context.subscriptions.push(outputChannel);
+  const log = (m) => outputChannel.appendLine(m);
+
+  // Cross-window "open session" handoff (see open-claude-session.js). Global
+  // storage is one directory shared by every window, which is what lets the
+  // clicking window hand a session to the window that owns its folder.
+  configureSessionOpener({ storageDir: context.globalStorageUri.fsPath });
+  // A window opened *for* a handoff picks it up on activation; an existing
+  // window that VS Code focused picks it up on focus.
+  claimHandoff(log).catch((e) => log("claimHandoff (activate) failed: " + e.message));
+  context.subscriptions.push(
+    vscode.window.onDidChangeWindowState((state) => {
+      if (state.focused) {
+        claimHandoff(log).catch((e) => log("claimHandoff (focus) failed: " + e.message));
+      }
+    })
+  );
+
+  // Browser deep links from the dashboard:
+  //   vscode://hoangsonw.claude-code-agent-monitor/open-session?id=<uuid>
+  // Only the id is read; the folder comes from the dashboard's own record.
+  context.subscriptions.push(
+    vscode.window.registerUriHandler({
+      handleUri(uri) {
+        log("handleUri: " + uri.toString());
+        if (uri.path !== "/open-session") return;
+        const id = new URLSearchParams(uri.query).get("id");
+        return openSessionById(id, log);
+      },
+    })
+  );
 
   const statusProvider = new DashboardWebviewProvider(context, outputChannel);
   context.subscriptions.push(
@@ -68,6 +104,8 @@ function activate(context) {
 
       panel.webview.onDidReceiveMessage((m) => {
         if (m.command === "retry") updateWebview();
+        // Relayed from the embedded dashboard by the bridge in getDashboardHtml.
+        if (m.command === "openClaudeSession") openSessionById(m.id, log);
       });
       await updateWebview();
     }
@@ -112,7 +150,24 @@ function activate(context) {
     }
   );
 
-  context.subscriptions.push(openDashboard, openInBrowser, refreshStatus, clearHistory);
+  // Deliberately NOT contributed in package.json: it requires arguments, so it
+  // would be useless (and confusing) in the command palette. It exists so the
+  // sidebar — and, later, a URI handler for browser deep links — can call it.
+  let openSessionInClaude = vscode.commands.registerCommand(
+    "claude-code-agent-monitor.openSessionInClaudeCode",
+    (session) =>
+      typeof session === "string"
+        ? openSessionById(session, log)
+        : openSessionInClaudeCode(session || {}, log)
+  );
+
+  context.subscriptions.push(
+    openDashboard,
+    openInBrowser,
+    refreshStatus,
+    clearHistory,
+    openSessionInClaude
+  );
   context.subscriptions.push({ dispose: () => clearInterval(statusInterval) });
 }
 
@@ -171,7 +226,25 @@ function getDashboardHtml(port, suffix) {
     .d{width:8px;height:8px;border-radius:50%;background:#10b981;margin-right:8px;box-shadow:0 0 5px #10b981;}
     .u{margin-left:auto;opacity:0.5;}</style></head>
     <body><div class="t"><div class="d"></div>Live Dashboard: ${suffix || "/"} <div class="u">localhost:${port}</div></div>
-    <iframe src="http://localhost:${port}${suffix}"></iframe></body></html>`;
+    <iframe src="http://localhost:${port}${suffix}"></iframe>
+    <script>
+    // Bridge: the dashboard runs in a cross-origin iframe with no VS Code API,
+    // so it asks us (the webview) to relay "open this session". Accept only
+    // messages from that exact iframe and origin, and ack so the dashboard
+    // knows not to fall back to a vscode:// link.
+    (function () {
+      var vscode = acquireVsCodeApi();
+      var frame = document.querySelector("iframe");
+      var origin = "http://localhost:${port}";
+      window.addEventListener("message", function (e) {
+        if (e.origin !== origin || e.source !== frame.contentWindow) return;
+        var m = e.data;
+        if (!m || m.type !== "ccam:openClaudeSession" || typeof m.id !== "string") return;
+        vscode.postMessage({ command: "openClaudeSession", id: m.id });
+        frame.contentWindow.postMessage({ type: "ccam:openClaudeSession:ack", id: m.id }, origin);
+      });
+    })();
+    </script></body></html>`;
 }
 
 function getErrorHtml() {

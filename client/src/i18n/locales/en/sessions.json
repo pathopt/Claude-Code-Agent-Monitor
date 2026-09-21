@@ -84,5 +84,8 @@
       "loadOlder": "↑ Load older messages"
     }
   },
-  "remoteSourceBadgeTitle": "Collected from a remote machine"
+  "remoteSourceBadgeTitle": "Collected from a remote machine",
+  "openInVSCode": "Open in VS Code",
+  "openInVSCodeShort": "VS Code",
+  "openInVSCodeTitle": "Open this session in Claude Code inside VS Code"
 }
