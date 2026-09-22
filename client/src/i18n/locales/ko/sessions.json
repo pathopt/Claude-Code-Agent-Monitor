@@ -83,7 +83,8 @@
     "hookOnlySession": "이 Codex 세션은 rollout을 디스크에 기록하지 않고 실행되어(예: `codex exec --ephemeral`) 생명주기 hook에서 기록을 재구성했습니다. 프롬프트, 도구 호출, 응답은 저장되었지만 열어 볼 전체 transcript는 없습니다.",
     "transcript": {
       "loadOlder": "↑ 이전 메시지 불러오기"
-    }
+    },
+    "sessionIdLabel": "세션 ID"
   },
   "openInVSCode": "VS Code에서 열기",
   "openInVSCodeShort": "VS Code",

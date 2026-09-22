@@ -83,7 +83,8 @@
     "hookOnlySession": "此 Codex 会话运行时未将 rollout 写入磁盘（例如 `codex exec --ephemeral`），因此其历史记录由生命周期 hook 重建。提示词、工具调用和回复均已捕获，但没有完整的 transcript 可供打开。",
     "transcript": {
       "loadOlder": "↑ 加载更早的消息"
-    }
+    },
+    "sessionIdLabel": "会话 ID"
   },
   "openInVSCode": "在 VS Code 中打开",
   "openInVSCodeShort": "VS Code",

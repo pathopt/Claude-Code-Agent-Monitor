@@ -83,7 +83,8 @@
     "hookOnlySession": "Phiên Codex này chạy mà không ghi rollout xuống đĩa (như với `codex exec --ephemeral`), nên lịch sử được tái dựng từ các hook vòng đời. Prompt, lệnh gọi công cụ và phản hồi đều được ghi lại, nhưng không có transcript đầy đủ để mở.",
     "transcript": {
       "loadOlder": "↑ Tải các tin nhắn cũ hơn"
-    }
+    },
+    "sessionIdLabel": "ID phiên"
   },
   "openInVSCode": "Mở trong VS Code",
   "openInVSCodeShort": "VS Code",

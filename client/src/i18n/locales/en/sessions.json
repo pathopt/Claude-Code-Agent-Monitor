@@ -82,7 +82,8 @@
     "hookOnlySession": "This Codex session ran without writing a rollout to disk (as with `codex exec --ephemeral`), so its history was reconstructed from lifecycle hooks. Prompts, tool calls, and replies are captured, but there is no full transcript to open.",
     "transcript": {
       "loadOlder": "↑ Load older messages"
-    }
+    },
+    "sessionIdLabel": "Session ID"
   },
   "remoteSourceBadgeTitle": "Collected from a remote machine",
   "openInVSCode": "Open in VS Code",

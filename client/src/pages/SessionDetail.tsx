@@ -670,8 +670,9 @@ export function SessionDetail() {
             />
           </div>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
-            <span className="inline-flex items-center gap-1 text-xs text-gray-500 font-mono bg-surface-2 px-2 py-1 rounded">
-              <span title={session.id}>{session.id.slice(0, 16)}</span>
+            <span className="inline-flex items-center gap-1.5 text-xs text-gray-500 font-mono bg-surface-2 px-2 py-1 rounded">
+              <span className="font-sans">{t("detail.sessionIdLabel")}</span>
+              <span className="text-gray-300 select-all">{session.id}</span>
               <CopyButton text={session.id} />
             </span>
             {session.model && (

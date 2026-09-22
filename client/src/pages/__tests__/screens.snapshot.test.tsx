@@ -627,6 +627,38 @@ describe("screen snapshots", () => {
       "/sessions/sess-1"
     );
   });
+  it("Session detail shows the full, labelled session ID in the header", async () => {
+    const id = "f5a49591-f525-4e4c-b694-b0d05ce55fc8";
+    vi.mocked(api.sessions.get).mockResolvedValueOnce({
+      session: {
+        id,
+        name: "Header ID session",
+        status: "completed",
+        cwd: "/test",
+        model: "claude-opus-5",
+        started_at: "2026-06-10T12:00:00.000Z",
+        ended_at: "2026-06-10T12:30:00.000Z",
+        metadata: null,
+      },
+      agents: [],
+      events: [],
+      workflows: [],
+    } as unknown as Awaited<ReturnType<typeof api.sessions.get>>);
+
+    render(
+      <MemoryRouter initialEntries={[`/sessions/${id}`]}>
+        <Routes>
+          <Route path="/sessions/:id" element={<SessionDetail />} />
+        </Routes>
+      </MemoryRouter>
+    );
+    await settle();
+
+    // The whole UUID, not the old 16-character prefix.
+    expect(screen.getByText(id)).toBeVisible();
+    expect(screen.queryByText(id.slice(0, 16))).toBeNull();
+    expect(screen.getByText("Session ID")).toBeVisible();
+  });
   it("Activity feed", async () => {
     await snapshot(<ActivityFeed />, "/activity");
   });
